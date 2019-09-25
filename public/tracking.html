@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<meta name="description" content="Spot the International Space Station. ISS sightings and current position"/>
+	<title>ISS Viewer - current position of ISS</title>
+</head>
+<body>
+	<div class="container">
+		<nav>
+			<ul>
+				<li><a href="index.html">Home</a></li>
+				<li class="selected"><a href="tracking.html">Tracking</a></li>
+				<li><a href="about.html">About</a></li>
+			</ul>
+		</nav>
+
+		<header>
+			<h2>International Space Station's current position</h2>
+			<p>Current position of the ISS updating in real time.</p>
+		</header>
+
+		<main class="tracking">
+			<div class="map" id="map"></div>
+			<h4>Orbital Info</h4>
+
+			<table class="orbit-table">
+				<tr>
+					<th>altitude:</th>
+					<td id="orbit-h">?</td>
+				</tr>
+				<tr>
+					<th>velocity:</th>
+					<td id="orbit-vel">?</td>
+				</tr>
+				<tr>
+					<th>longitude:</th>
+					<td id="orbit-lon">?</td>
+				</tr>
+				<tr>
+					<th>latitude:</th>
+					<td id="orbit-lat">?</td>
+				</tr>
+			</table>
+		</main>
+	</div>
+</body>
+</html>
