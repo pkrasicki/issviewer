@@ -141,7 +141,7 @@ async function predictResponse (req, res)
 		{
 			console.log("location is not in cache and will be downloaded");
 			const response = await limiter.schedule(() =>
-				fetch(`https://nominatim.openstreetmap.org/search?format=json&city=${locationName}`, headers));
+				fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`, headers));
 			const places = await response.json();
 
 			if (places.length > 0)
