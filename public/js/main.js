@@ -1,6 +1,7 @@
 import "../css/main.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "leaflet";
+import "../images/logo.png";
 
 const startPos = [51.505, -0.09];
 const headingDateFormat = {day: "2-digit", month: "long", year: "numeric"};

@@ -69,6 +69,12 @@ a
 	padding: 30px 0;
 }
 
+.logo
+{
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
 nav
 {
 	background: black;
@@ -303,11 +309,6 @@ main #location
 	body
 	{
 		font-size: 16px;
-	}
-
-	nav
-	{
-		height: 25px;
 	}
 
 	header, .sightings

@@ -5,7 +5,7 @@ const Bottleneck = require("bottleneck/es5");
 const predict = require("./predict");
 const cache = require("./cache");
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const MS_PER_HOUR = 3600000;
 const headers = {headers: {"User-Agent": "issviewer"}};
 const limiter = new Bottleneck({
