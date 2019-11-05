@@ -123,6 +123,7 @@ function trackResponse(req, res)
 	res.json(data);
 }
 
+// json response containing list of predictions and location data
 async function predictResponse (req, res)
 {
 	try
@@ -137,11 +138,14 @@ async function predictResponse (req, res)
 
 		var location = await cache.getLocation(locationName);
 
+		// location not in cache, download it
 		if (location == null)
 		{
 			console.log("location is not in cache and will be downloaded");
+			const requestURL = encodeURI(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`);
 			const response = await limiter.schedule(() =>
-				fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`, headers));
+				fetch(requestURL, headers)
+			);
 			const places = await response.json();
 
 			if (places.length > 0)
