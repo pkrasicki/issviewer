@@ -6,12 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
+    "build-prod": "webpack -p",
     "server": "webpack-dev-server",
     "watch": "webpack --watch"
   },
   "keywords": [],
   "author": "pkrasicki",
-  "license": "GPL3",
+  "license": "GPL",
   "dependencies": {
     "bottleneck": "^2.19.4",
     "css-loader": "^3.0.0",
