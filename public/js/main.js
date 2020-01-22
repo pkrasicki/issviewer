@@ -9,10 +9,13 @@ const liTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit", tim
 const detailsDateFormat = {day: "2-digit", month: "short", year: "numeric"};
 const detailsTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit"};
 const headers = {headers: {"User-Agent": "issviewer"}};
+const lineSunlitColor = "rgb(255, 42, 42)";
+const lineDarkColor = "rgba(72, 72, 255, 0.7)";
 var map = L.map("map");
 var passes = {};
-var marker;
-var polyline;
+var locationMarker;
+var polylineSunlit;
+var polylineDark;
 
 async function updateISSPosition(table)
 {
@@ -20,7 +23,7 @@ async function updateISSPosition(table)
 	{
 		const response = await fetch("track", headers);
 		const coords = await response.json();
-		marker.setLatLng([coords.lat, coords.lon]);
+		locationMarker.setLatLng([coords.lat, coords.lon]);
 		map.setView([coords.lat, coords.lon]);
 		updateOrbitInfo(table, coords.lat, coords.lon, coords.height, coords.velocityKmph);
 	} catch (err)
@@ -37,12 +40,12 @@ function updateOrbitInfo(table, lon, lat, height, velocityKmph)
 	table.querySelector("#orbit-lat").innerHTML = lat;
 }
 
-function enableSpinner()
+function showSpinner()
 {
 	document.querySelector(".spinner").style.visibility = "visible";
 }
 
-function disableSpinner()
+function hideSpinner()
 {
 	document.querySelector(".spinner").style.visibility = "hidden";
 }
@@ -51,7 +54,7 @@ async function locationInputChange(e)
 {
 	try
 	{
-		enableSpinner();
+		showSpinner();
 		const locationName = e.target.value;
 		const response = await fetch(`predict/${locationName}`, headers);
 		passes = await response.json();
@@ -60,7 +63,7 @@ async function locationInputChange(e)
 		if (typeof passes != "object" || Object.keys(passes).length === 0)
 			return;
 
-		drawCityMarker(locationName);
+		drawLocationMarker(locationName);
 		updateSightingsList();
 		map.setView([passes.location.lat, passes.location.lon]);
 		document.querySelector("#location").scrollIntoView();
@@ -69,16 +72,16 @@ async function locationInputChange(e)
 		console.error("Can't get predictions: ", err);
 	} finally
 	{
-		disableSpinner();
+		hideSpinner();
 	}
 }
 
-function drawCityMarker(locationName)
+function drawLocationMarker(locationName)
 {
-	if (marker)
-		marker.remove();
+	if (locationMarker)
+		locationMarker.remove();
 
-	marker = L.marker([passes.location.lat, passes.location.lon],
+	locationMarker = L.marker([passes.location.lat, passes.location.lon],
 	{
 		title: locationName,
 		alt: locationName
@@ -120,18 +123,39 @@ function dateToTimeZoneName(date)
 
 function updateSightingDetails(selectedPass)
 {
-	const startDate = new Date(selectedPass.startDate);
-	const maxDate = new Date(selectedPass.maxDate);
-	const endDate = new Date(selectedPass.endDate);
+	const startDate = new Date(selectedPass.visible.startDate);
+	const maxDate = new Date(selectedPass.visible.maxDate);
+	const endDate = new Date(selectedPass.visible.endDate);
 
 	document.getElementById("detail-date").innerHTML = startDate.toLocaleDateString(undefined, detailsDateFormat);
 	document.getElementById("detail-tz-name").innerHTML = `Time (${dateToTimeZoneName(startDate)})`;
 	document.getElementById("detail-time-start").innerHTML = startDate.toLocaleTimeString(undefined, detailsTimeFormat);
 	document.getElementById("detail-time-max").innerHTML = maxDate.toLocaleTimeString(undefined, detailsTimeFormat);
 	document.getElementById("detail-time-end").innerHTML = endDate.toLocaleTimeString(undefined, detailsTimeFormat);
-	document.getElementById("detail-alt-start").innerHTML = selectedPass.points[0].elevation + "&deg;";
-	document.getElementById("detail-alt-max").innerHTML = selectedPass.maxElevation + "&deg;";
-	document.getElementById("detail-alt-end").innerHTML = selectedPass.points[selectedPass.points.length - 1].elevation + "&deg;";
+
+	let firstVisiblePoint;
+	for (let i = 0; i < selectedPass.points.length; i++)
+	{
+		if (selectedPass.points[i].sunlit)
+		{
+			firstVisiblePoint = selectedPass.points[i];
+			break;
+		}
+	}
+
+	let lastVisiblePoint;
+	for (let i = selectedPass.points.length - 1; i > -1; i--)
+	{
+		if (selectedPass.points[i].sunlit)
+		{
+			lastVisiblePoint = selectedPass.points[i];
+			break;
+		}
+	}
+
+	document.getElementById("detail-alt-start").innerHTML = firstVisiblePoint.elevation + "&deg;";
+	document.getElementById("detail-alt-max").innerHTML = selectedPass.visible.maxElevation + "&deg;";
+	document.getElementById("detail-alt-end").innerHTML = lastVisiblePoint.elevation + "&deg;";
 }
 
 function sightingItemClick(e)
@@ -147,16 +171,16 @@ function sightingItemClick(e)
 
 function durationToString(duration)
 {
-	if (duration < 60)
-	{
-		return `${duration} s`;
-	} else
-	{
-		const minutes = Math.floor(duration / 60);
-		const seconds = duration % 60;
+	const minutes = Math.floor(duration / 60);
+	const seconds = duration % 60;
+	let durationString = `${minutes} min ${seconds} s`;
 
-		return `${minutes} min ${seconds} s`;
-	}
+	if (minutes == 0)
+		durationString = `${duration} s`;
+	else if (seconds == 0)
+		durationString = `${minutes} min`;
+
+	return durationString;
 }
 
 function updateSightingsList()
@@ -186,9 +210,9 @@ function updateSightingsList()
 			isDifferentDay = true;
 		}
 
-		const timeString = new Date(pass.startDate).toLocaleTimeString(undefined, liTimeFormat);
-		const durationString = durationToString(pass.durationSeconds);
-		const maxElevationString = pass.maxElevation;
+		const timeString = new Date(pass.visible.startDate).toLocaleTimeString(undefined, liTimeFormat);
+		const durationString = durationToString(pass.visible.durationSeconds);
+		const maxElevationString = pass.visible.maxElevation;
 		const liElement = createSightingListItem(timeString, durationString, maxElevationString, index);
 
 		if (index == 0)
@@ -198,7 +222,7 @@ function updateSightingsList()
 		if (isDifferentDay)
 		{
 			var heading = document.createElement("h4");
-			heading.innerHTML = new Date(pass.startDate).toLocaleDateString(undefined, headingDateFormat);
+			heading.innerHTML = new Date(pass.visible.startDate).toLocaleDateString(undefined, headingDateFormat);
 
 			var ul = document.createElement("ul");
 			ul.appendChild(liElement);
@@ -217,13 +241,20 @@ function updateSightingsList()
 
 function drawPassOnMap(pass)
 {
-	const coordsArray = pass.map(value => [value.lat, value.lon]);
+	const sunlitPoints = pass.filter(point => point.sunlit === true);
+	const sunlitCoords = sunlitPoints.map(point => [point.lat, point.lon]);
 
-	if (polyline)
-		polyline.remove();
+	const darkPoints = pass;
+	const darkCoords = darkPoints.map(point => [point.lat, point.lon]);
 
-	// TODO use line color rgb(255, 75, 50) for visible points (where satellite is sunlit)
-	polyline = L.polyline(coordsArray).addTo(map);
+	if (polylineSunlit)
+		polylineSunlit.remove();
+
+	if (polylineDark)
+		polylineDark.remove();
+
+	polylineDark = L.polyline(darkCoords, {color: lineDarkColor}).addTo(map);
+	polylineSunlit = L.polyline(sunlitCoords, {color: lineSunlitColor}).addTo(map);
 }
 
 window.addEventListener("load", () =>
@@ -247,7 +278,7 @@ window.addEventListener("load", () =>
 		const table = document.querySelector(".orbit-table");
 
 		map.setView(startPos, 3);
-		marker = L.marker(startPos,
+		locationMarker = L.marker(startPos,
 		{
 			title: "ISS",
 			alt: "ISS"

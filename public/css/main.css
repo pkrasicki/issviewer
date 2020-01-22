@@ -194,6 +194,7 @@ main #location
 	grid-template-columns: repeat(3, 1fr);
 	justify-content: space-between;
 	border-radius: 5px;
+	border: solid 1px transparent;
 }
 
 .date
@@ -211,22 +212,15 @@ main #location
 	text-align: right;
 }
 
-.sightings-list ul li:nth-child(even)
-{
-	background-color: rgb(210, 210, 210);
-}
-
 .sightings-list ul li:hover
 {
-	background-color: var(--primary);
 	cursor: pointer;
+	border-color: var(--primary);
 }
 
 .sightings-list ul li.selected
 {
-	box-shadow: 0 0 5px var(--primary-dark) inset;
-	border-radius: 5px;
-	background-color: var(--primary);
+	border-color: var(--primary-dark);
 }
 
 .text-left
