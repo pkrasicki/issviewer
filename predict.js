@@ -1,5 +1,5 @@
 const satellite = require("satellite.js");
-const SunCalc = require("suncalc/suncalc"); // git version of suncalc
+const SunCalc = require("./suncalc/suncalc"); // git version of suncalc
 const ITERATE_SECONDS = 10;
 
 function isSunlit(date, lon, lat, heightMeters)
@@ -8,7 +8,8 @@ function isSunlit(date, lon, lat, heightMeters)
 	const latDeg = satellite.radiansToDegrees(lat);
 	const sunTimes = SunCalc.getTimes(date, latDeg, lonDeg, heightMeters);
 
-	if (date > sunTimes.nightEnd && date < sunTimes.night)
+	let sunlightEnd = new Date((sunTimes.sunsetStart.getTime() + sunTimes.goldenHour.getTime()) / 2);
+	if (date > sunTimes.dawn && date < sunlightEnd)
 		return true;
 	else
 		return false;
@@ -150,8 +151,9 @@ module.exports =
 			sunTimes = SunCalc.getTimes(passDate, lat, lon);
 
 			// make sure we only get predictions when the sky is dark enough
-			if (passDate > sunTimes.dawn && passDate < sunTimes.sunset)
-				passDate = new Date(sunTimes.sunset.getTime());
+			let darkEnough = new Date((sunTimes.sunset.getTime() + sunTimes.dusk.getTime()) / 2);
+			if (passDate > sunTimes.dawn && passDate < darkEnough)
+				passDate = new Date(darkEnough.getTime());
 
 			sunTimes.dawn.setDate(sunTimes.dawn.getDate() + 1);
 			// number of iterations until sky becomes bright again
