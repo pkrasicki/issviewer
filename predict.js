@@ -8,6 +8,7 @@ function isSunlit(date, lon, lat, heightMeters)
 	const latDeg = satellite.radiansToDegrees(lat);
 	const sunTimes = SunCalc.getTimes(date, latDeg, lonDeg, heightMeters);
 
+	// get time between sunset start and golden hour. When satellite height is used this time seems to work best
 	let sunlightEnd = new Date((sunTimes.sunsetStart.getTime() + sunTimes.goldenHour.getTime()) / 2);
 	if (date > sunTimes.dawn && date < sunlightEnd)
 		return true;
@@ -151,7 +152,7 @@ module.exports =
 			sunTimes = SunCalc.getTimes(passDate, lat, lon);
 
 			// make sure we only get predictions when the sky is dark enough
-			let darkEnough = new Date((sunTimes.sunset.getTime() + sunTimes.dusk.getTime()) / 2);
+			let darkEnough = new Date((sunTimes.sunset.getTime() + sunTimes.dusk.getTime()) / 2); // time between sunset and dusk
 			if (passDate > sunTimes.dawn && passDate < darkEnough)
 				passDate = new Date(darkEnough.getTime());
 

@@ -1,5 +1,7 @@
 import "../css/main.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
+import "../../node_modules/leaflet/dist/images/marker-shadow.png";
+import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import "leaflet";
 import "../images/logo.png";
 
