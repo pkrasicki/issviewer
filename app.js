@@ -158,9 +158,8 @@ async function predictResponse (req, res)
 			}
 		}
 
-		const predictions = predict.getPasses(tleData, location.lon, location.lat);
-
-		var data =
+		const predictions = await predict.getPasses(tleData, location.lon, location.lat);
+		const data =
 		{
 			location:
 			{

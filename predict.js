@@ -1,167 +1,39 @@
-const satellite = require("satellite.js");
-const SunCalc = require("./suncalc/suncalc"); // git version of suncalc
-const ITERATE_SECONDS = 10;
-
-function isSunlit(date, lon, lat, heightMeters)
-{
-	const lonDeg = satellite.radiansToDegrees(lon);
-	const latDeg = satellite.radiansToDegrees(lat);
-	const sunTimes = SunCalc.getTimes(date, latDeg, lonDeg, heightMeters);
-
-	// get time between sunset start and golden hour. When satellite height is used this time seems to work best
-	let sunlightEnd = new Date((sunTimes.sunsetStart.getTime() + sunTimes.goldenHour.getTime()) / 2);
-	if (date > sunTimes.dawn && date < sunlightEnd)
-		return true;
-	else
-		return false;
-}
-
-function iterate(tleData, lon, lat, passesArray, startDate, numIterations)
-{
-	const satrec = satellite.twoline2satrec(tleData[1], tleData[2]);
-	const observerGd =
-	{
-		longitude: satellite.degreesToRadians(lon),
-		latitude: satellite.degreesToRadians(lat),
-		height: 0.370
-	};
-
-	let prevDate;
-	let passId = passesArray.length;
-	let pointIndex = 0;
-
-	for (let i = 0; i < numIterations; i++)
-	{
-		startDate.setSeconds(startDate.getSeconds() + ITERATE_SECONDS);
-		const posvel = satellite.propagate(satrec, startDate);
-		const posEci = posvel.position;
-		const gmst = satellite.gstime(startDate);
-		const posEcf = satellite.eciToEcf(posEci, gmst);
-		const lookAngles = satellite.ecfToLookAngles(observerGd, posEcf);
-		const elevationDeg = satellite.radiansToDegrees(lookAngles.elevation);
-		const posGd = satellite.eciToGeodetic(posEci, gmst);
-
-		if (elevationDeg > 10)
-		{
-			if (!prevDate)
-			{
-				prevDate = new Date(startDate.getTime());
-			} else
-			{
-				// add 1h to prevDate. If startDate is bigger that means it's a new pass
-				prevDate.setHours(prevDate.getHours() + 1);
-				if (prevDate <= startDate)
-				{
-					passId++;
-					pointIndex = 0;
-				}
-
-				prevDate = new Date(startDate.getTime());
-			}
-
-			if (!passesArray[passId])
-				passesArray[passId] = {points: []};
-
-			const currentPass = passesArray[passId];
-			const point =
-			{
-				date: startDate.toString(),
-				lat: satellite.degreesLat(posGd.latitude),
-				lon: satellite.degreesLong(posGd.longitude),
-				elevation: Math.round(elevationDeg),
-				sunlit: isSunlit(startDate, posGd.longitude, posGd.latitude, posGd.height * 1000)
-			};
-
-			currentPass.points.push(point);
-
-			// add additional pass information
-			if (pointIndex > 0)
-			{
-				if (point.elevation > currentPass.maxElevation)
-				{
-					currentPass.maxElevation = point.elevation;
-					currentPass.maxDate = point.date;
-				}
-
-				let firstDate = new Date(currentPass.points[0].date);
-				currentPass.endDate = point.date;
-				currentPass.durationSeconds = Math.round((startDate - firstDate) / 1000);
-
-				if (point.sunlit)
-				{
-					if (point.elevation > currentPass.visible.maxElevation)
-					{
-						currentPass.visible.maxElevation = point.elevation;
-						currentPass.visible.maxDate = point.date;
-					}
-
-					if (!currentPass.sunlit)
-					{
-						currentPass.sunlit = true;
-						currentPass.visible.startDate = point.date;
-					}
-
-					currentPass.visible.endDate = point.date;
-					let visibleStartDate = new Date(currentPass.visible.startDate);
-					let visibleEndDate = new Date(currentPass.visible.endDate);
-					currentPass.visible.durationSeconds = Math.round((visibleEndDate - visibleStartDate) / 1000);
-				}
-
-			} else if (pointIndex == 0)
-			{
-				currentPass.startDate = point.date;
-				currentPass.maxElevation = point.elevation;
-				currentPass.maxDate = point.date;
-				currentPass.endDate = point.date;
-				currentPass.durationSeconds = 0;
-
-				if (point.sunlit)
-					currentPass.sunlit = true;
-				else
-					currentPass.sunlit = false;
-
-				currentPass.visible =
-				{
-					startDate: point.date,
-					maxElevation: point.elevation,
-					maxDate: point.date,
-					endDate: point.date,
-					durationSeconds: ITERATE_SECONDS
-				};
-			}
-
-			pointIndex++;
-		}
-	}
-}
+const { spawn } = require("child_process");
 
 module.exports =
 {
-	getPasses: function (tleData, lon, lat)
+	// execute the python script to get a list of passes
+	getPasses: async (tleData, lon, lat) =>
 	{
-		const numDays = 7; // number of days for the forecast
-		var passes = [];
-		var passDate = new Date();
-		var endDate = new Date(passDate.getTime());
-		endDate.setDate(endDate.getDate() + numDays - 1);
-		var sunTimes;
-		var numIterations;
+		const numDays = 10;
+		const scriptName = "predict.py";
+		const pyPredict = spawn("python3", ["predict.py", JSON.stringify(tleData), lon, lat, numDays]);
 
-		while (endDate > passDate)
+		return new Promise((resolve, reject) =>
 		{
-			sunTimes = SunCalc.getTimes(passDate, lat, lon);
+			let dataString = "";
 
-			// make sure we only get predictions when the sky is dark enough
-			let darkEnough = new Date((sunTimes.sunset.getTime() + sunTimes.dusk.getTime()) / 2); // time between sunset and dusk
-			if (passDate > sunTimes.dawn && passDate < darkEnough)
-				passDate = new Date(darkEnough.getTime());
+			pyPredict.stdout.on("data", data =>
+			{
+				dataString += data.toString("utf8");
+			});
 
-			sunTimes.dawn.setDate(sunTimes.dawn.getDate() + 1);
-			// number of iterations until sky becomes bright again
-			numIterations = Math.floor((sunTimes.dawn - passDate) / (1000 * ITERATE_SECONDS));
-			iterate(tleData, lon, lat, passes, passDate, numIterations);
-		}
+			pyPredict.stderr.on("data", data =>
+			{
+				console.log(`ERROR in ${scriptName}: `, data.toString("utf8"));
+				reject();
+			});
 
-		return passes.filter(pass => pass.sunlit === true);
+			pyPredict.on("error", err =>
+			{
+				console.log(`ERROR in ${scriptName}: `, err.toString("utf8"));
+				reject();
+			});
+
+			pyPredict.on("close", code =>
+			{
+				resolve(JSON.parse(dataString));
+			});
+		});
 	}
 }

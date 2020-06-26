@@ -138,7 +138,7 @@ function updateSightingDetails(selectedPass)
 	let firstVisiblePoint;
 	for (let i = 0; i < selectedPass.points.length; i++)
 	{
-		if (selectedPass.points[i].sunlit)
+		if (selectedPass.points[i].visible)
 		{
 			firstVisiblePoint = selectedPass.points[i];
 			break;
@@ -148,7 +148,7 @@ function updateSightingDetails(selectedPass)
 	let lastVisiblePoint;
 	for (let i = selectedPass.points.length - 1; i > -1; i--)
 	{
-		if (selectedPass.points[i].sunlit)
+		if (selectedPass.points[i].visible)
 		{
 			lastVisiblePoint = selectedPass.points[i];
 			break;
@@ -243,7 +243,7 @@ function updateSightingsList()
 
 function drawPassOnMap(pass)
 {
-	const sunlitPoints = pass.filter(point => point.sunlit === true);
+	const sunlitPoints = pass.filter(point => point.visible === true);
 	const sunlitCoords = sunlitPoints.map(point => [point.lat, point.lon]);
 
 	const darkPoints = pass;
