@@ -246,6 +246,11 @@ main #location
 	font-weight: bold;
 }
 
+.hidden
+{
+	display: none;
+}
+
 @keyframes spinner-spin
 {
 	0%

@@ -5,14 +5,15 @@ import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import "leaflet";
 import "../images/logo.png";
 
+const PREDICTION_NUM_DAYS = 10;
 const startPos = [51.505, -0.09];
 const headingDateFormat = {day: "2-digit", month: "long", year: "numeric"};
 const liTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short"};
 const detailsDateFormat = {day: "2-digit", month: "short", year: "numeric"};
 const detailsTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit"};
 const headers = {headers: {"User-Agent": "issviewer"}};
-const lineSunlitColor = "rgb(255, 42, 42)";
-const lineDarkColor = "rgba(72, 72, 255, 0.7)";
+const LINE_SUNLIT_COLOR = "rgb(255, 42, 42)";
+const LINE_DARK_COLOR = "rgba(72, 72, 255, 0.7)";
 var map = L.map("map");
 var passes = {};
 var locationMarker;
@@ -191,6 +192,7 @@ function updateSightingsList()
 	const sightingsDiv = document.querySelector(".sightings");
 	const sightingsListDiv = document.querySelector(".sightings-list");
 	const locationInfo = document.querySelector(".location-info");
+	const detailsTable = document.querySelector(".sightings-details");
 
 	locationInfo.style.display = "none";
 	sightingsDiv.style.display = "flex";
@@ -201,44 +203,56 @@ function updateSightingsList()
 		sightingsListDiv.removeChild(sightingsListDiv.firstChild);
 	}
 
-	var prevDay;
-	var firstLiElement;
-	sightings.forEach((pass, index) =>
+	if (sightings.length > 0)
 	{
-		var isDifferentDay = false;
-		if (!prevDay || prevDay != new Date(pass.startDate).getDate())
+		if (detailsTable.classList.contains("hidden"))
+			detailsTable.classList.remove("hidden");
+
+		var prevDay;
+		var firstLiElement;
+		sightings.forEach((pass, index) =>
 		{
-			prevDay = new Date(pass.startDate).getDate();
-			isDifferentDay = true;
-		}
+			var isDifferentDay = false;
+			if (!prevDay || prevDay != new Date(pass.startDate).getDate())
+			{
+				prevDay = new Date(pass.startDate).getDate();
+				isDifferentDay = true;
+			}
 
-		const timeString = new Date(pass.visible.startDate).toLocaleTimeString(undefined, liTimeFormat);
-		const durationString = durationToString(pass.visible.durationSeconds);
-		const maxElevationString = pass.visible.maxElevation;
-		const liElement = createSightingListItem(timeString, durationString, maxElevationString, index);
+			const timeString = new Date(pass.visible.startDate).toLocaleTimeString(undefined, liTimeFormat);
+			const durationString = durationToString(pass.visible.durationSeconds);
+			const maxElevationString = pass.visible.maxElevation;
+			const liElement = createSightingListItem(timeString, durationString, maxElevationString, index);
 
-		if (index == 0)
-			firstLiElement = liElement;
+			if (index == 0)
+				firstLiElement = liElement;
 
-		// separate sightings by day
-		if (isDifferentDay)
-		{
-			var heading = document.createElement("h4");
-			heading.innerHTML = new Date(pass.visible.startDate).toLocaleDateString(undefined, headingDateFormat);
+			// separate sightings by day
+			if (isDifferentDay)
+			{
+				var heading = document.createElement("h4");
+				heading.innerHTML = new Date(pass.visible.startDate).toLocaleDateString(undefined, headingDateFormat);
 
-			var ul = document.createElement("ul");
-			ul.appendChild(liElement);
-			sightingsListDiv.appendChild(heading);
-			sightingsListDiv.appendChild(ul);
+				var ul = document.createElement("ul");
+				ul.appendChild(liElement);
+				sightingsListDiv.appendChild(heading);
+				sightingsListDiv.appendChild(ul);
 
-		} else
-		{
-			sightingsListDiv.querySelector("ul:last-child").appendChild(liElement);
-		}
-	});
+			} else
+			{
+				sightingsListDiv.querySelector("ul:last-child").appendChild(liElement);
+			}
+		});
 
-	// automatically select first element on the list
-	firstLiElement.click();
+		// automatically select first element on the list
+		firstLiElement.click();
+	} else
+	{
+		if (!detailsTable.classList.contains("hidden"))
+			detailsTable.classList.add("hidden");
+
+		sightingsListDiv.textContent = `There won't be any visible passes in this location in the next ${PREDICTION_NUM_DAYS} days :(`;
+	}
 }
 
 function drawPassOnMap(pass)
@@ -255,8 +269,8 @@ function drawPassOnMap(pass)
 	if (polylineDark)
 		polylineDark.remove();
 
-	polylineDark = L.polyline(darkCoords, {color: lineDarkColor}).addTo(map);
-	polylineSunlit = L.polyline(sunlitCoords, {color: lineSunlitColor}).addTo(map);
+	polylineDark = L.polyline(darkCoords, {color: LINE_DARK_COLOR}).addTo(map);
+	polylineSunlit = L.polyline(sunlitCoords, {color: LINE_SUNLIT_COLOR}).addTo(map);
 }
 
 window.addEventListener("load", () =>

@@ -47,12 +47,12 @@ def predict_passes(tle_array, lon, lat, num_days):
 			"points": [],
 			"visible": {
 				"startDate": None,
-				"startElevation": None,
+				"startElevation": 0,
 				"maxDate": None,
-				"maxElevation": None,
+				"maxElevation": 0,
 				"endDate": None,
-				"endElevation": None,
-				"durationSeconds": None
+				"endElevation": 0,
+				"durationSeconds": 0
 			}
 		}
 
@@ -110,10 +110,12 @@ def predict_passes(tle_array, lon, lat, num_days):
 
 		observer.date = pass_obj["endDate"] + PASS_TIME_DELAY
 
-		pass_obj["startDate"] = to_timestamp(pass_obj["startDate"])
-		pass_obj["maxDate"] = to_timestamp(pass_obj["maxDate"])
-		pass_obj["endDate"] = to_timestamp(pass_obj["endDate"])
-		passes.append(pass_obj)
+		# skip the pass if its visible part is very short or none
+		if (pass_obj["visible"]["durationSeconds"] > POINT_TIME_INTERVAL_SECONDS):
+			pass_obj["startDate"] = to_timestamp(pass_obj["startDate"])
+			pass_obj["maxDate"] = to_timestamp(pass_obj["maxDate"])
+			pass_obj["endDate"] = to_timestamp(pass_obj["endDate"])
+			passes.append(pass_obj)
 
 	return passes
 
