@@ -7,6 +7,7 @@ const cache = require("./cache");
 
 const PORT = process.env.PORT || 3000;
 const MS_PER_HOUR = 3600000;
+const ISS_TRACK_INTERVAL_MS = 100;
 const headers = {headers: {"User-Agent": "issviewer"}};
 const limiter = new Bottleneck({
 	maxConcurrent: 1,
@@ -14,7 +15,8 @@ const limiter = new Bottleneck({
 });
 
 const app = express();
-var tleData = [];
+let tleData = [];
+let issPosition = {};
 
 app.use(express.static("./dist"));
 
@@ -27,6 +29,12 @@ function tleStringToArray(tleString)
 function tleArrayToString(arr)
 {
 	return `${arr[0]}\n${arr[1]}\n${arr[2]}`;
+}
+
+function updatePosition()
+{
+	if (tleData.length > 0)
+		issPosition = getCurrentPosition();
 }
 
 // current position of the ISS
@@ -44,10 +52,10 @@ function getCurrentPosition()
 
 	const data =
 	{
-		lat: lat,
-		lon: lon,
-		height: height,
-		velocityKmph: eciVelocityToKmph(posvel.velocity)
+		lat: Number(lat.toFixed(2)),
+		lon: Number(lon.toFixed(2)),
+		height: Number(height.toFixed(1)),
+		velocityKmph: Math.round(eciVelocityToKmph(posvel.velocity))
 	};
 
 	return data;
@@ -113,16 +121,6 @@ function eciVelocityToKmph(velocity)
 	);
 }
 
-function trackResponse(req, res)
-{
-	const data = getCurrentPosition();
-	data.height = Number(data.height.toFixed(1));
-	data.velocityKmph = Math.round(data.velocityKmph);
-	data.lon = Number(data.lon.toFixed(2));
-	data.lat = Number(data.lat.toFixed(2));
-	res.json(data);
-}
-
 // json response containing list of predictions and location data
 async function predictResponse (req, res)
 {
@@ -180,7 +178,10 @@ async function predictResponse (req, res)
 	}
 }
 
-app.get("/track", trackResponse);
+app.get("/track", (req, res) =>
+{
+	res.json(issPosition);
+});
 app.get("/predict/:locationName", predictResponse);
 
 app.listen(PORT, () =>
@@ -190,3 +191,4 @@ app.listen(PORT, () =>
 
 startLoadTleData();
 setInterval(fetchTleData, MS_PER_HOUR); // fetch new TLE hourly
+setInterval(updatePosition, ISS_TRACK_INTERVAL_MS); // calculate and store current position periodically
