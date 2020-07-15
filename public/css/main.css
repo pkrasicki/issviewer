@@ -2,6 +2,8 @@
 {
 	--primary: rgb(136, 195, 255);
 	--primary-dark: rgb(59, 144, 230);
+	--background: rgb(235, 235, 235);
+	--background-dark: rgb(66, 76, 104);
 }
 
 *
@@ -20,7 +22,7 @@ body
 	margin: 0;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 18px;
-	background: rgb(235, 235, 235);
+	background: var(--background);
 	overflow-x: hidden;
 }
 
@@ -373,7 +375,7 @@ main #location
 {
 	body
 	{
-		background: rgb(66, 76, 104);
+		background: var(--background-dark);
 		color: rgba(255, 255, 255, 0.8);
 	}
 
