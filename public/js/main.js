@@ -5,7 +5,6 @@ import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import "leaflet";
 import "../images/logo.png";
 
-const PREDICTION_NUM_DAYS = 10;
 const startPos = [51.505, -0.09];
 const headingDateFormat = {day: "2-digit", month: "long", year: "numeric"};
 const liTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short"};
@@ -192,21 +191,24 @@ function updateSightingsList()
 	const sightingsDiv = document.querySelector(".sightings");
 	const sightingsListDiv = document.querySelector(".sightings-list");
 	const locationInfo = document.querySelector(".location-info");
-	const detailsTable = document.querySelector(".sightings-details");
 
-	locationInfo.style.display = "none";
-	sightingsDiv.style.display = "flex";
-
-	// clear the list first
-	while (sightingsListDiv.firstChild)
-	{
-		sightingsListDiv.removeChild(sightingsListDiv.firstChild);
-	}
+	if (!locationInfo.classList.contains("hidden"))
+		locationInfo.classList.add("hidden");
 
 	if (sightings.length > 0)
 	{
-		if (detailsTable.classList.contains("hidden"))
-			detailsTable.classList.remove("hidden");
+		const noPassesMessage = document.querySelector("#no-passes-message");
+		if (!noPassesMessage.classList.contains("hidden"))
+			noPassesMessage.classList.add("hidden");
+
+		// clear the list first
+		while (sightingsListDiv.firstChild)
+		{
+			sightingsListDiv.removeChild(sightingsListDiv.firstChild);
+		}
+
+		if (sightingsDiv.classList.contains("hidden"))
+			sightingsDiv.classList.remove("hidden");
 
 		var prevDay;
 		var firstLiElement;
@@ -248,10 +250,12 @@ function updateSightingsList()
 		firstLiElement.click();
 	} else
 	{
-		if (!detailsTable.classList.contains("hidden"))
-			detailsTable.classList.add("hidden");
+		if (!sightingsDiv.classList.contains("hidden"))
+			sightingsDiv.classList.add("hidden");
 
-		sightingsListDiv.textContent = `There won't be any visible passes in this location in the next ${PREDICTION_NUM_DAYS} days :(`;
+		const noPassesMessage = document.querySelector("#no-passes-message");
+		if (noPassesMessage.classList.contains("hidden"))
+			noPassesMessage.classList.remove("hidden");
 	}
 }
 

@@ -24,17 +24,20 @@
 
 		<main>
 			<label>Your Location:</label>
-			<input id="location" type="text" placeholder="city name" autofocus/>
-			<span class="spinner"></span>
+			<input id="location" type="text" placeholder="city name" autofocus spellcheck="false"/><span class="spinner"></span>
 
 			<div class="map" id="map"></div>
-
 			<small class="location-info">Provide a location to see a list of upcoming passes</small>
 
-			<div class="sightings">
+			<div id="no-passes-message" class="no-passes-message hidden">
+				<p>No visible passes in the next 10 days :(</p>
+				<p>Try a different location or come back another day</p>
+			</div>
+
+			<div class="sightings hidden">
 				<div class="sightings-list"></div>
 
-				<div class="sightings-details hidden">
+				<div class="sightings-details">
 					<span id="detail-date"></span>
 					<span class="bold">Start</span>
 					<span class="bold">Maximum</span>

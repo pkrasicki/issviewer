@@ -3,7 +3,7 @@
 	--primary: rgb(136, 195, 255);
 	--primary-dark: rgb(59, 144, 230);
 	--background: rgb(235, 235, 235);
-	--background-dark: rgb(66, 76, 104);
+	--text: rgba(0, 0, 0, 0.9);
 }
 
 *
@@ -24,15 +24,24 @@ body
 	font-size: 18px;
 	background: var(--background);
 	overflow-x: hidden;
+	color: var(--text);
 }
 
 input
 {
+	font-family: inherit;
+	font-size: inherit;
 	padding: 5px;
 	border: solid 1px rgba(0, 0, 0, 0.2);
 	border-radius: 5px;
 	color: black;
 	background: white;
+}
+
+input:focus
+{
+	border-color: var(--primary-dark) !important;
+	outline: none;
 }
 
 .spinner
@@ -41,6 +50,11 @@ input
 	height: 28px;
 	display: inline-block;
 	visibility: hidden;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	margin-left: 5px;
 }
 
 .spinner:after
@@ -162,7 +176,7 @@ main #location
 .sightings
 {
 	margin-top: 20px;
-	display: none;
+	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
 	justify-content: space-around;
@@ -246,6 +260,21 @@ main #location
 .bold
 {
 	font-weight: bold;
+}
+
+.no-passes-message
+{
+	margin-top: 10px;
+}
+
+.no-passes-message p
+{
+	margin: 5px;
+}
+
+.no-passes-message p:first-child
+{
+	margin-top: 0px;
 }
 
 .hidden
@@ -373,10 +402,12 @@ main #location
 
 @media(prefers-color-scheme: dark)
 {
-	body
+	:root
 	{
-		background: var(--background-dark);
-		color: rgba(255, 255, 255, 0.8);
+		--primary: rgb(136, 195, 255);
+		--primary-dark: rgb(59, 144, 230);
+		--background: rgb(66, 76, 104);
+		--text: rgba(255, 255, 255, 0.8);
 	}
 
 	a
@@ -388,6 +419,6 @@ main #location
 	{
 		color: white;
 		background-color: rgba(0, 0, 0, 0.2);
-		border: none;
+		border-color: transparent;
 	}
 }
