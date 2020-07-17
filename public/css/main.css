@@ -282,6 +282,21 @@ main #location
 	display: none;
 }
 
+.text-label::before
+{
+	display: none !important;
+}
+
+.text-label
+{
+	color: rgb(255, 42, 42) !important;
+	background: transparent !important;
+	font-size: 18px !important;
+	border: none !important;
+	box-shadow: none !important;
+	text-shadow: 1px 1px rgba(0, 0, 0, 0.5) !important;
+}
+
 @keyframes spinner-spin
 {
 	0%

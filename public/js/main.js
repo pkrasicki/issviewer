@@ -13,11 +13,13 @@ const detailsTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit"
 const headers = {headers: {"User-Agent": "issviewer"}};
 const LINE_SUNLIT_COLOR = "rgb(255, 42, 42)";
 const LINE_DARK_COLOR = "rgba(72, 72, 255, 0.7)";
-var map = L.map("map");
-var passes = {};
-var locationMarker;
-var polylineSunlit;
-var polylineDark;
+let map = L.map("map");
+let passes = {};
+let locationMarker;
+let startMarker;
+let endMarker;
+let polylineSunlit;
+let polylineDark;
 
 async function updateISSPosition(table)
 {
@@ -275,6 +277,20 @@ function drawPassOnMap(pass)
 
 	polylineDark = L.polyline(darkCoords, {color: LINE_DARK_COLOR}).addTo(map);
 	polylineSunlit = L.polyline(sunlitCoords, {color: LINE_SUNLIT_COLOR}).addTo(map);
+
+	if (startMarker)
+		startMarker.remove();
+
+	if (endMarker)
+		endMarker.remove();
+
+	startMarker = new L.marker(sunlitCoords[0], {opacity: 0});
+	startMarker.bindTooltip("start", {permanent: true, className: "text-label", offset: [0, 0], direction: "bottom"});
+	startMarker.addTo(map);
+
+	endMarker = new L.marker(sunlitCoords[sunlitCoords.length-1], {opacity: 0});
+	endMarker.bindTooltip("end", {permanent: true, className: "text-label", offset: [0, 0], direction: "bottom"});
+	endMarker.addTo(map);
 }
 
 window.addEventListener("load", () =>
@@ -292,7 +308,7 @@ window.addEventListener("load", () =>
 		locationInput.value = ""; // clear input on refresh
 		locationInput.addEventListener("change", locationInputChange);
 		map.setView(startPos, 4);
-		
+
 	} else if(tracking)
 	{
 		const table = document.querySelector(".orbit-table");
