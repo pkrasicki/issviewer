@@ -3,6 +3,8 @@ Track the International Space Station and get pass predictions.
 
 ![screenshot](screenshot.png?raw=true)
 
+![screenshot 2](screenshot2.png?raw=true)
+
 ISS Viewer predicts visible ISS passes for a given location and displays them on a map. You can also view the station's position in real time.
 
 ## Dependencies
