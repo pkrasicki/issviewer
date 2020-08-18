@@ -199,7 +199,7 @@ main #location
 .sightings-list
 {
 	overflow-y: auto;
-	height: 500px;
+	max-height: 400px;
 }
 
 .sightings-list ul
@@ -215,6 +215,11 @@ main #location
 	justify-content: space-between;
 	border-radius: 5px;
 	border: solid 1px transparent;
+}
+
+.sightings-list h4
+{
+	margin-bottom: 0;
 }
 
 .date
@@ -404,6 +409,14 @@ main #location
 	.map
 	{
 		max-height: 300px;
+	}
+}
+
+@media(min-height: 1100px)
+{
+	.sightings-list
+	{
+		max-height: none;
 	}
 }
 
