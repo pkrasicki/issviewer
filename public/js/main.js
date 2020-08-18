@@ -137,29 +137,13 @@ function updateSightingDetails(selectedPass)
 	document.getElementById("detail-time-max").innerHTML = maxDate.toLocaleTimeString(undefined, detailsTimeFormat);
 	document.getElementById("detail-time-end").innerHTML = endDate.toLocaleTimeString(undefined, detailsTimeFormat);
 
-	let firstVisiblePoint;
-	for (let i = 0; i < selectedPass.points.length; i++)
-	{
-		if (selectedPass.points[i].visible)
-		{
-			firstVisiblePoint = selectedPass.points[i];
-			break;
-		}
-	}
-
-	let lastVisiblePoint;
-	for (let i = selectedPass.points.length - 1; i > -1; i--)
-	{
-		if (selectedPass.points[i].visible)
-		{
-			lastVisiblePoint = selectedPass.points[i];
-			break;
-		}
-	}
-
-	document.getElementById("detail-alt-start").innerHTML = firstVisiblePoint.elevation + "&deg;";
+	document.getElementById("detail-alt-start").innerHTML = selectedPass.visible.startElevation + "&deg;";
 	document.getElementById("detail-alt-max").innerHTML = selectedPass.visible.maxElevation + "&deg;";
-	document.getElementById("detail-alt-end").innerHTML = lastVisiblePoint.elevation + "&deg;";
+	document.getElementById("detail-alt-end").innerHTML = selectedPass.visible.endElevation + "&deg;";
+
+	document.getElementById("detail-dir-start").innerHTML = azimuthToDirectionString(selectedPass.visible.startAzimuth);
+	document.getElementById("detail-dir-max").innerHTML = azimuthToDirectionString(selectedPass.visible.maxAzimuth);
+	document.getElementById("detail-dir-end").innerHTML = azimuthToDirectionString(selectedPass.visible.endAzimuth);
 }
 
 function sightingItemClick(e)
@@ -291,6 +275,33 @@ function drawPassOnMap(pass)
 	endMarker = new L.marker(sunlitCoords[sunlitCoords.length-1], {opacity: 0});
 	endMarker.bindTooltip("end", {permanent: true, className: "text-label", offset: [0, 0], direction: "bottom"});
 	endMarker.addTo(map);
+}
+
+// azimuth in degrees
+function azimuthToDirectionString(azimuth)
+{
+	const directions = [
+		"N", // north for 0 degrees
+		"NNE",
+		"NE",
+		"ENE",
+		"E",
+		"ESE",
+		"SE",
+		"SSE",
+		"S",
+		"SSW",
+		"SW",
+		"WSW",
+		"W",
+		"WNW",
+		"NW",
+		"NNW",
+		"N" // north again for 360 degress
+	];
+
+	let index = Math.round(azimuth / 22.5);
+	return directions[index];
 }
 
 window.addEventListener("load", () =>

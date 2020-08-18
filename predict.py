@@ -48,10 +48,13 @@ def predict_passes(tle_array, lon, lat, num_days):
 			"visible": {
 				"startDate": None,
 				"startElevation": 0,
+				"startAzimuth": 0,
 				"maxDate": None,
 				"maxElevation": 0,
+				"maxAzimuth": 0,
 				"endDate": None,
 				"endElevation": 0,
+				"endAzimuth": 0,
 				"durationSeconds": 0
 			}
 		}
@@ -82,7 +85,7 @@ def predict_passes(tle_array, lon, lat, num_days):
 				"date": to_timestamp(cur_time),
 				"lat": math.degrees(satellite.sublat),
 				"lon": math.degrees(satellite.sublong),
-				# "azimuth": math.degrees(satellite.az),
+				"azimuth": math.degrees(satellite.az),
 				"elevation": round(math.degrees(satellite.alt)),
 				"visible": not satellite.eclipsed and round(math.degrees(satellite.alt)) >= MIN_PASS_ELEVATION
 			}
@@ -92,15 +95,19 @@ def predict_passes(tle_array, lon, lat, num_days):
 				if (pass_obj["visible"]["startDate"] is None):
 					pass_obj["visible"]["startDate"] = to_timestamp(cur_time)
 					pass_obj["visible"]["startElevation"] = point["elevation"]
+					pass_obj["visible"]["startAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
+					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
 
 				if (point["elevation"] > pass_obj["visible"]["maxElevation"]):
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
+					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
 
 				pass_obj["visible"]["endDate"] = point["date"]
 				pass_obj["visible"]["endElevation"] = point["elevation"]
+				pass_obj["visible"]["endAzimuth"] = point["azimuth"]
 				duration_seconds = (pass_obj["visible"]["endDate"] - pass_obj["visible"]["startDate"]) / 1000
 				pass_obj["visible"]["durationSeconds"] = duration_seconds
 
