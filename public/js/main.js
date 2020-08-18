@@ -242,6 +242,19 @@ function updateSightingsList()
 		const noPassesMessage = document.querySelector("#no-passes-message");
 		if (noPassesMessage.classList.contains("hidden"))
 			noPassesMessage.classList.remove("hidden");
+
+		// clear last trajectory from the map
+		if (polylineSunlit)
+			polylineSunlit.remove();
+
+		if (polylineDark)
+			polylineDark.remove();
+
+		if (startMarker)
+			startMarker.remove();
+
+		if (endMarker)
+			endMarker.remove();
 	}
 }
 
