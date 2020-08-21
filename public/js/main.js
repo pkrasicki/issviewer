@@ -144,6 +144,10 @@ function updateSightingDetails(selectedPass)
 	document.getElementById("detail-dir-start").innerHTML = azimuthToDirectionString(selectedPass.visible.startAzimuth);
 	document.getElementById("detail-dir-max").innerHTML = azimuthToDirectionString(selectedPass.visible.maxAzimuth);
 	document.getElementById("detail-dir-end").innerHTML = azimuthToDirectionString(selectedPass.visible.endAzimuth);
+
+	document.getElementById("detail-mag-start").innerHTML = selectedPass.visible.startMagnitude;
+	document.getElementById("detail-mag-max").innerHTML = selectedPass.visible.maxMagnitude;
+	document.getElementById("detail-mag-end").innerHTML = selectedPass.visible.endMagnitude;
 }
 
 function sightingItemClick(e)

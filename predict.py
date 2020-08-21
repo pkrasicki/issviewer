@@ -19,6 +19,49 @@ def to_datetime(time):
 def to_timestamp(date_time):
 	return calendar.timegm(date_time.utctimetuple()) * 1000 # multiply to get JavaScript timestamp
 
+#-------------------------------------------------------------------------
+#
+# The MIT License (MIT)
+#
+# Copyright (c) 2020 Liam Kennedy : 8/20/2020
+#
+# Permission is hereby granted, free of charge, to any person obtaining a
+# copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be included
+# in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+# OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+#-------------------------------------------------------------------------
+def magnitude(sat_range, sat_azimuth, sat_altitude, sun_distance, sun_azimuth, sun_altitude):
+	AU = 149597871 # Astronimical Unit (km)
+	STANDARD_MAG = -1.3 # intrinsic brightness of ISS at 1000km
+						# Cannot remember source for this - some suggest it should be lower now (making ISS brighter)
+						# I still find this lines up with how I think it is visually
+
+	a = sun_distance * AU - ephem.earth_radius # distance sun from observer (Km)
+	b = sat_range / 1000 # distance to ISS from observer (Km)
+	angle_c = ephem.separation((sat_azimuth, sat_altitude), (sun_azimuth, sun_altitude))
+	c = math.sqrt(math.pow(a,2) + math.pow(b,2) - 2 * a * b * math.cos(angle_c))
+
+	phase_angle = math.acos((math.pow(b, 2) + math.pow(c, 2) - math.pow(a, 2)) / (2 * b * c))
+
+	# This is the MAGIC equation (Author: Matson, Robert)
+	mag = STANDARD_MAG - 15 + 5 * math.log10(sat_range / 1000) - 2.5 * math.log10(math.sin(phase_angle) + ((math.pi - phase_angle) * math.cos(phase_angle)))
+	return mag
+
 # predicts visible satellite passes
 # lon and lat are in degrees as strings
 def predict_passes(tle_array, lon, lat, num_days):
@@ -55,7 +98,10 @@ def predict_passes(tle_array, lon, lat, num_days):
 				"endDate": None,
 				"endElevation": 0,
 				"endAzimuth": 0,
-				"durationSeconds": 0
+				"durationSeconds": 0,
+				"startMagnitude": 0,
+				"maxMagnitude": 0,
+				"endMagnitude": 0
 			}
 		}
 
@@ -87,11 +133,15 @@ def predict_passes(tle_array, lon, lat, num_days):
 				"lon": math.degrees(satellite.sublong),
 				"azimuth": math.degrees(satellite.az),
 				"elevation": round(math.degrees(satellite.alt)),
-				"visible": not satellite.eclipsed and round(math.degrees(satellite.alt)) >= MIN_PASS_ELEVATION
+				"visible": not satellite.eclipsed and round(math.degrees(satellite.alt)) >= MIN_PASS_ELEVATION,
+				"magnitude": 0
 			}
 
 			# update information about the visible part of the pass
 			if (point["visible"]):
+				sun.compute(observer)
+				point["magnitude"] = magnitude(satellite.range, satellite.az, satellite.alt, sun.earth_distance, sun.az, sun.alt)
+
 				if (pass_obj["visible"]["startDate"] is None):
 					pass_obj["visible"]["startDate"] = to_timestamp(cur_time)
 					pass_obj["visible"]["startElevation"] = point["elevation"]
@@ -99,15 +149,18 @@ def predict_passes(tle_array, lon, lat, num_days):
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
 					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
+					pass_obj["visible"]["startMagnitude"] = point["magnitude"]
 
 				if (point["elevation"] > pass_obj["visible"]["maxElevation"]):
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
 					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
+					pass_obj["visible"]["maxMagnitude"] = point["magnitude"]
 
 				pass_obj["visible"]["endDate"] = point["date"]
 				pass_obj["visible"]["endElevation"] = point["elevation"]
 				pass_obj["visible"]["endAzimuth"] = point["azimuth"]
+				pass_obj["visible"]["endMagnitude"] = point["magnitude"]
 				duration_seconds = (pass_obj["visible"]["endDate"] - pass_obj["visible"]["startDate"]) / 1000
 				pass_obj["visible"]["durationSeconds"] = duration_seconds
 
