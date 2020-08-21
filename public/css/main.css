@@ -232,7 +232,7 @@ main #location
 	text-align: center;
 }
 
-.max-elevation
+.brightness
 {
 	text-align: right;
 }
@@ -398,7 +398,7 @@ main #location
 		grid-template-columns: 1fr;
 	}
 
-	.date, .duration, .max-elevation
+	.date, .duration, .brightness
 	{
 		text-align: center;
 	}

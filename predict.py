@@ -100,8 +100,9 @@ def predict_passes(tle_array, lon, lat, num_days):
 				"endAzimuth": 0,
 				"durationSeconds": 0,
 				"startMagnitude": 0,
-				"maxMagnitude": 0,
-				"endMagnitude": 0
+				"maxMagnitude": 0, # magnitude during highest elevation
+				"endMagnitude": 0,
+				"brightestMagnitude": 0 # brightest (lowest) magnitude of the pass
 			}
 		}
 
@@ -140,22 +141,27 @@ def predict_passes(tle_array, lon, lat, num_days):
 			# update information about the visible part of the pass
 			if (point["visible"]):
 				sun.compute(observer)
-				point["magnitude"] = magnitude(satellite.range, satellite.az, satellite.alt, sun.earth_distance, sun.az, sun.alt)
+				point["magnitude"] = round(magnitude(satellite.range, satellite.az, satellite.alt, sun.earth_distance, sun.az, sun.alt), 1)
 
 				if (pass_obj["visible"]["startDate"] is None):
 					pass_obj["visible"]["startDate"] = to_timestamp(cur_time)
 					pass_obj["visible"]["startElevation"] = point["elevation"]
 					pass_obj["visible"]["startAzimuth"] = point["azimuth"]
+					pass_obj["visible"]["startMagnitude"] = point["magnitude"]
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
 					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
-					pass_obj["visible"]["startMagnitude"] = point["magnitude"]
+					pass_obj["visible"]["maxMagnitude"] = point["magnitude"]
+					pass_obj["visible"]["brightestMagnitude"] = point["magnitude"]
 
 				if (point["elevation"] > pass_obj["visible"]["maxElevation"]):
 					pass_obj["visible"]["maxElevation"] = point["elevation"]
 					pass_obj["visible"]["maxAzimuth"] = point["azimuth"]
 					pass_obj["visible"]["maxDate"] = to_timestamp(cur_time)
 					pass_obj["visible"]["maxMagnitude"] = point["magnitude"]
+
+				if (point["magnitude"] < pass_obj["visible"]["brightestMagnitude"]):
+					pass_obj["visible"]["brightestMagnitude"] = point["magnitude"]
 
 				pass_obj["visible"]["endDate"] = point["date"]
 				pass_obj["visible"]["endElevation"] = point["elevation"]

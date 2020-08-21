@@ -92,27 +92,27 @@ function drawLocationMarker(locationName)
 	}).addTo(map);
 }
 
-function createSightingListItem(time, duration, maxElevation, passId)
+function createSightingListItem(time, duration, brightnessString, passId)
 {
-	var li = document.createElement("li");
+	let li = document.createElement("li");
 
-	var timeSpan = document.createElement("span");
+	let timeSpan = document.createElement("span");
 	timeSpan.classList.add("date");
 	timeSpan.innerHTML = time;
-	
-	var durationSpan = document.createElement("span");
+
+	let durationSpan = document.createElement("span");
 	durationSpan.classList.add("duration");
 	durationSpan.innerHTML = duration;
-	
-	var maxElevationSpan = document.createElement("span");
-	maxElevationSpan.classList.add("max-elevation");
-	maxElevationSpan.innerHTML = maxElevation + "&deg;";
+
+	let brightnessSpan = document.createElement("span");
+	brightnessSpan.classList.add("brightness");
+	brightnessSpan.innerHTML = brightnessString;
 
 	li.dataset.passId = passId;
 
 	li.appendChild(timeSpan);
 	li.appendChild(durationSpan);
-	li.appendChild(maxElevationSpan);
+	li.appendChild(brightnessSpan);
 	li.addEventListener("click", sightingItemClick);
 
 	return li;
@@ -145,9 +145,9 @@ function updateSightingDetails(selectedPass)
 	document.getElementById("detail-dir-max").innerHTML = azimuthToDirectionString(selectedPass.visible.maxAzimuth);
 	document.getElementById("detail-dir-end").innerHTML = azimuthToDirectionString(selectedPass.visible.endAzimuth);
 
-	document.getElementById("detail-mag-start").innerHTML = selectedPass.visible.startMagnitude;
-	document.getElementById("detail-mag-max").innerHTML = selectedPass.visible.maxMagnitude;
-	document.getElementById("detail-mag-end").innerHTML = selectedPass.visible.endMagnitude;
+	document.getElementById("detail-mag-start").innerHTML = selectedPass.visible.startMagnitude.toFixed(1);
+	document.getElementById("detail-mag-max").innerHTML = selectedPass.visible.maxMagnitude.toFixed(1);
+	document.getElementById("detail-mag-end").innerHTML = selectedPass.visible.endMagnitude.toFixed(1);
 }
 
 function sightingItemClick(e)
@@ -200,11 +200,11 @@ function updateSightingsList()
 		if (sightingsDiv.classList.contains("hidden"))
 			sightingsDiv.classList.remove("hidden");
 
-		var prevDay;
-		var firstLiElement;
+		let prevDay;
+		let firstLiElement;
 		sightings.forEach((pass, index) =>
 		{
-			var isDifferentDay = false;
+			let isDifferentDay = false;
 			if (!prevDay || prevDay != new Date(pass.startDate).getDate())
 			{
 				prevDay = new Date(pass.startDate).getDate();
@@ -213,8 +213,8 @@ function updateSightingsList()
 
 			const timeString = new Date(pass.visible.startDate).toLocaleTimeString(undefined, liTimeFormat);
 			const durationString = durationToString(pass.visible.durationSeconds);
-			const maxElevationString = pass.visible.maxElevation;
-			const liElement = createSightingListItem(timeString, durationString, maxElevationString, index);
+			const brightnessString = pass.visible.brightestMagnitude.toFixed(1);
+			const liElement = createSightingListItem(timeString, durationString, brightnessString, index);
 
 			if (index == 0)
 				firstLiElement = liElement;
@@ -222,10 +222,10 @@ function updateSightingsList()
 			// separate sightings by day
 			if (isDifferentDay)
 			{
-				var heading = document.createElement("h4");
+				let heading = document.createElement("h4");
 				heading.innerHTML = new Date(pass.visible.startDate).toLocaleDateString(undefined, headingDateFormat);
 
-				var ul = document.createElement("ul");
+				let ul = document.createElement("ul");
 				ul.appendChild(liElement);
 				sightingsListDiv.appendChild(heading);
 				sightingsListDiv.appendChild(ul);
