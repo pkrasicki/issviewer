@@ -232,9 +232,51 @@ main #location
 	text-align: center;
 }
 
-.brightness
+.brightness-value
 {
 	text-align: right;
+}
+
+.brightness-indicator
+{
+	justify-self: flex-end;
+	position: relative;
+	top: -3px;
+}
+
+.brightness-indicator .bar
+{
+	display: inline-block;
+	background: rgba(0, 0, 0, 0.15);
+	margin-right: 2px;
+	width: 5px;
+	position: relative;
+	top: 3px;
+}
+
+.brightness-indicator .bar-1
+{
+	height: 5px;
+}
+
+.brightness-indicator .bar-2
+{
+	height: 10px;
+}
+
+.brightness-indicator .bar-3
+{
+	height: 15px;
+}
+
+.brightness-indicator .bar-4
+{
+	height: 20px;
+}
+
+.brightness-indicator .bar.full
+{
+	background: var(--primary-dark);
 }
 
 .sightings-list ul li:hover
@@ -398,9 +440,14 @@ main #location
 		grid-template-columns: 1fr;
 	}
 
-	.date, .duration, .brightness
+	.date, .duration
 	{
 		text-align: center;
+	}
+
+	.brightness-indicator
+	{
+		justify-self: center;
 	}
 }
 
@@ -448,5 +495,15 @@ main #location
 		color: white;
 		background-color: rgba(0, 0, 0, 0.2);
 		border-color: transparent;
+	}
+
+	.brightness-indicator .bar.full
+	{
+		background: var(--primary);
+	}
+
+	.spinner:after
+	{
+		border-color: var(--primary) transparent var(--primary) transparent;
 	}
 }

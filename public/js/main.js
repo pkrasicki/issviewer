@@ -92,27 +92,35 @@ function drawLocationMarker(locationName)
 	}).addTo(map);
 }
 
-function createSightingListItem(time, duration, brightnessString, passId)
+function createSightingListItem(time, duration, brightness, passId)
 {
 	let li = document.createElement("li");
-
-	let timeSpan = document.createElement("span");
-	timeSpan.classList.add("date");
-	timeSpan.innerHTML = time;
-
-	let durationSpan = document.createElement("span");
-	durationSpan.classList.add("duration");
-	durationSpan.innerHTML = duration;
-
-	let brightnessSpan = document.createElement("span");
-	brightnessSpan.classList.add("brightness");
-	brightnessSpan.innerHTML = brightnessString;
-
 	li.dataset.passId = passId;
+	let itemHtml =`\
+<span class="date">${time}</span>\
+<span class="duration">${duration}</span>\
+`;
 
-	li.appendChild(timeSpan);
-	li.appendChild(durationSpan);
-	li.appendChild(brightnessSpan);
+	let numBars = 1;
+	if (brightness <= -3.5)
+		numBars = 4;
+	else if (brightness <= -2.5)
+		numBars = 3;
+	else if (brightness <= -1.5)
+		numBars = 2;
+
+	let brightnessIndicator = document.createElement("div");
+	brightnessIndicator.classList.add("brightness-indicator");
+	let brightnessIndicatorHtml = `\
+<div class="bar bar-1 ${numBars > 0 ? 'full' : ''}"></div>\
+<div class="bar bar-2 ${numBars > 1 ? 'full' : ''}"></div>\
+<div class="bar bar-3 ${numBars > 2 ? 'full' : ''}"></div>\
+<div class="bar bar-4 ${numBars > 3 ? 'full' : ''}"></div>\
+	<span class="brightness-value">${brightness.toFixed(1)} mag</span>`;
+	brightnessIndicator.insertAdjacentHTML("beforeend", brightnessIndicatorHtml);
+
+	li.insertAdjacentHTML("beforeend", itemHtml);
+	li.appendChild(brightnessIndicator);
 	li.addEventListener("click", sightingItemClick);
 
 	return li;
@@ -145,9 +153,9 @@ function updateSightingDetails(selectedPass)
 	document.getElementById("detail-dir-max").innerHTML = azimuthToDirectionString(selectedPass.visible.maxAzimuth);
 	document.getElementById("detail-dir-end").innerHTML = azimuthToDirectionString(selectedPass.visible.endAzimuth);
 
-	document.getElementById("detail-mag-start").innerHTML = selectedPass.visible.startMagnitude.toFixed(1);
-	document.getElementById("detail-mag-max").innerHTML = selectedPass.visible.maxMagnitude.toFixed(1);
-	document.getElementById("detail-mag-end").innerHTML = selectedPass.visible.endMagnitude.toFixed(1);
+	document.getElementById("detail-mag-start").innerHTML = selectedPass.visible.startMagnitude.toFixed(1) + " mag";
+	document.getElementById("detail-mag-max").innerHTML = selectedPass.visible.maxMagnitude.toFixed(1) + " mag";
+	document.getElementById("detail-mag-end").innerHTML = selectedPass.visible.endMagnitude.toFixed(1) + " mag";
 }
 
 function sightingItemClick(e)
@@ -213,8 +221,7 @@ function updateSightingsList()
 
 			const timeString = new Date(pass.visible.startDate).toLocaleTimeString(undefined, liTimeFormat);
 			const durationString = durationToString(pass.visible.durationSeconds);
-			const brightnessString = pass.visible.brightestMagnitude.toFixed(1);
-			const liElement = createSightingListItem(timeString, durationString, brightnessString, index);
+			const liElement = createSightingListItem(timeString, durationString, pass.visible.brightestMagnitude, index);
 
 			if (index == 0)
 				firstLiElement = liElement;
