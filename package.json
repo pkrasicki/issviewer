@@ -1,6 +1,6 @@
 {
   "name": "issviewer",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "spot the International Space Station, get pass predictions",
   "main": "app.js",
   "scripts": {
@@ -13,6 +13,7 @@
   "keywords": [],
   "author": "pkrasicki",
   "license": "GPL",
+  "private": "true",
   "dependencies": {
     "bottleneck": "^2.19.5",
     "css-loader": "^3.6.0",
