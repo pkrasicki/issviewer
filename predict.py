@@ -78,7 +78,15 @@ def predict_passes(tle_array, lon, lat, num_days):
 	satellite = ephem.readtle(tle_array[0], tle_array[1], tle_array[2])
 
 	while(True):
-		arr = observer.next_pass(satellite)
+		arr = []
+
+		# fix for crash from libastro error: 'that satellite seems to stay always below your horizon'
+		# TODO: investigate why it happens
+		try:
+			arr = observer.next_pass(satellite)
+		except:
+			return {}
+
 		pass_obj = {
 			"startDate": to_datetime(arr[0]),
 			# "startAzimuth": arr[1],
