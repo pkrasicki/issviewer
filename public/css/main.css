@@ -2,8 +2,10 @@
 {
 	--primary: rgb(136, 195, 255);
 	--primary-dark: rgb(59, 144, 230);
-	--background: rgb(235, 235, 235);
-	--text: rgba(0, 0, 0, 0.9);
+	--background: white;
+	--nav-background: rgba(0, 0, 0, 0.95);
+	--text: rgba(0, 0, 0, 0.85);
+	--text-nav: rgba(255, 255, 255, 0.85);
 }
 
 *
@@ -34,7 +36,7 @@ input
 	padding: 5px;
 	border: solid 1px rgba(0, 0, 0, 0.2);
 	border-radius: 5px;
-	color: black;
+	color: rgba(0, 0, 0, 0.9);
 	background: white;
 }
 
@@ -80,6 +82,12 @@ ul
 a
 {
 	text-decoration: none;
+	color: rgb(0, 99, 192);
+}
+
+a:hover
+{
+	color: rgb(0, 81, 156);
 }
 
 .container
@@ -93,12 +101,13 @@ a
 {
 	margin-left: 10px;
 	margin-right: 10px;
+	filter: brightness(0.7);
 }
 
 nav
 {
-	background: black;
-	color: rgba(255, 255, 255, 0.85);
+	background: var(--nav-background);
+	color: var(--text-nav);
 	height: 30px;
 	position: absolute;
 	left: 0;
@@ -121,15 +130,25 @@ nav ul li
 	margin: 0 10px;
 }
 
-nav ul li.selected, nav ul li:hover
+nav ul li:hover
 {
-	color: white;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+nav ul li.selected
+{
+	font-weight: bold;
 }
 
 nav ul li a
 {
 	color: inherit;
 	outline: none;
+}
+
+nav ul li a:hover
+{
+	color: inherit;
 }
 
 header
@@ -341,7 +360,9 @@ main #location
 	font-size: 18px !important;
 	border: none !important;
 	box-shadow: none !important;
-	text-shadow: 1px 1px rgba(0, 0, 0, 0.5) !important;
+	text-shadow: 1px 1px rgba(0, 0, 0, 0.3) !important;
+	top: 15px;
+	left: -15px;
 }
 
 @keyframes spinner-spin
@@ -481,20 +502,41 @@ main #location
 	{
 		--primary: rgb(136, 195, 255);
 		--primary-dark: rgb(59, 144, 230);
-		--background: rgb(66, 76, 104);
-		--text: rgba(255, 255, 255, 0.8);
+		--background: rgb(40, 44, 54);
+		--nav-background: rgba(0, 0, 0, 0.7);
+		--text: rgba(255, 255, 255, 0.85);
 	}
 
 	a
 	{
-		color: rgb(96, 178, 255);
+		color: rgb(122, 191, 255);
+	}
+
+	a:hover
+	{
+		color: rgb(143, 200, 253);
 	}
 
 	input
 	{
-		color: white;
+		color: rgba(255, 255, 255, 0.9);
 		background-color: rgba(0, 0, 0, 0.2);
 		border-color: transparent;
+	}
+
+	.map
+	{
+		background: #1f1f1f !important; /* when !important is added this will be the color of map tiles while they are loading - default is too bright */
+	}
+
+	.map-tiles
+	{
+		filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
+	}
+
+	.text-label
+	{
+		color: rgb(255, 95, 95) !important;
 	}
 
 	.brightness-indicator .bar.full

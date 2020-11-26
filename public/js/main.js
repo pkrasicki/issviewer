@@ -5,22 +5,36 @@ import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import "leaflet";
 import "../images/logo.png";
 
-const startPos = [51.505, -0.09];
+const startPos = [51.505, -0.09]; // default map position
 const headingDateFormat = {day: "2-digit", month: "long", year: "numeric"};
 const liTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "short"};
 const detailsDateFormat = {day: "2-digit", month: "short", year: "numeric"};
 const detailsTimeFormat = {hour: "2-digit", minute: "2-digit", second: "2-digit"};
 const headers = {headers: {"User-Agent": "issviewer"}};
-const LINE_SUNLIT_COLOR = "rgb(255, 42, 42)";
-const LINE_DARK_COLOR = "rgba(72, 72, 255, 0.7)";
-let map = L.map("map");
+const lineColor =
+{
+	default:
+	{
+		sunlit: "rgb(255, 42, 42)",
+		shadowed: "rgba(9, 0, 129, 0.3)"
+	},
+	darkTheme:
+	{
+		sunlit: "rgb(255, 79, 79)",
+		shadowed: "rgba(121, 121, 240, 0.5)"
+	}
+};
+
+let map;
 let passes = {};
 let locationMarker;
-let startMarker;
-let endMarker;
-let polylineSunlit;
-let polylineDark;
+let startMarker; // marks visible pass start
+let endMarker; // marks visible pass end
+let polylineSunlit; // visible path
+let polylineShadowed; // path in Earth's shadow
+let isDarkTheme = false;
 
+// updates current position of ISS on the map on tracking page
 async function updateISSPosition(table)
 {
 	try
@@ -36,6 +50,7 @@ async function updateISSPosition(table)
 	}
 }
 
+// updates orbital information on tracking page
 function updateOrbitInfo(table, lon, lat, height, velocityKmph)
 {
 	table.querySelector("#orbit-h").innerHTML = height + " km";
@@ -54,6 +69,7 @@ function hideSpinner()
 	document.querySelector(".spinner").style.visibility = "hidden";
 }
 
+// user changed location
 async function locationInputChange(e)
 {
 	try
@@ -258,8 +274,8 @@ function updateSightingsList()
 		if (polylineSunlit)
 			polylineSunlit.remove();
 
-		if (polylineDark)
-			polylineDark.remove();
+		if (polylineShadowed)
+			polylineShadowed.remove();
 
 		if (startMarker)
 			startMarker.remove();
@@ -280,11 +296,14 @@ function drawPassOnMap(pass)
 	if (polylineSunlit)
 		polylineSunlit.remove();
 
-	if (polylineDark)
-		polylineDark.remove();
+	if (polylineShadowed)
+		polylineShadowed.remove();
 
-	polylineDark = L.polyline(darkCoords, {color: LINE_DARK_COLOR}).addTo(map);
-	polylineSunlit = L.polyline(sunlitCoords, {color: LINE_SUNLIT_COLOR}).addTo(map);
+	// path colors depend on selected theme
+	const sunlitColor = isDarkTheme ? lineColor.darkTheme.sunlit : lineColor.default.sunlit;
+	const shadowedColor = isDarkTheme ? lineColor.darkTheme.shadowed : lineColor.default.shadowed;
+	polylineShadowed = L.polyline(darkCoords, {color: shadowedColor}).addTo(map);
+	polylineSunlit = L.polyline(sunlitCoords, {color: sunlitColor}).addTo(map);
 
 	if (startMarker)
 		startMarker.remove();
@@ -328,17 +347,39 @@ function azimuthToDirectionString(azimuth)
 	return directions[index];
 }
 
+// theme changed by user
+function themeChanged(e)
+{
+	if (e.matches)
+		isDarkTheme = true;
+	else
+		isDarkTheme = false;
+}
+
 window.addEventListener("load", () =>
 {
 	const tracking = document.querySelector("main.tracking");
 
+	map = L.map("map",
+	{
+		attributionControl: false
+	});
+
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	{
-		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+		className: "map-tiles"
 	}).addTo(map);
+
+	L.control.attribution({prefix: ""}).addTo(map);
 
 	if (!tracking)
 	{
+		// detect system theme changes
+		const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+		isDarkTheme = darkThemeQuery.matches;
+		darkThemeQuery.addEventListener("change", themeChanged);
+
 		const locationInput = document.querySelector("#location");
 		locationInput.value = ""; // clear input on refresh
 		locationInput.addEventListener("change", locationInputChange);
