@@ -26,7 +26,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "redis": "^2.8.0",
     "satellite.js": "^3.0.1",
-    "webpack": "^4.44.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
