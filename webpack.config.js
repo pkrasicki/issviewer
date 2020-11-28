@@ -52,6 +52,10 @@ module.exports =
 						name: "[name].[ext]"
 					}
 				}
+			},
+			{
+				test: /\.html$/,
+				loader: "html-loader"
 			}
 		]
 	},

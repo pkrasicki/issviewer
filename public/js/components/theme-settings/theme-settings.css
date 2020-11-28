@@ -1,0 +1,22 @@
+.theme-settings
+{
+	display: flex;
+	flex-direction: row;
+}
+
+.night-icon
+{
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border-radius: 50%;
+	box-shadow: inset 0 4px rgba(255, 255, 255, 0.6), inset 0 4px 0px 0px rgba(255, 255, 255, 0.6);
+	transform: rotate(-90deg);
+}
+
+.theme-settings .night-icon
+{
+	margin-right: 5px;
+	position: relative;
+	top: 1px;
+}

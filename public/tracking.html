@@ -6,7 +6,7 @@
 	<meta name="description" content="Spot the International Space Station. ISS sightings and current position"/>
 	<title>ISS Viewer - current position of ISS</title>
 </head>
-<body>
+<body id="tracking">
 	<div class="container">
 		<nav>
 			<ul>
@@ -14,6 +14,7 @@
 				<li><a href="index.html">Home</a></li>
 				<li class="selected"><a href="tracking.html">Tracking</a></li>
 				<li><a href="about.html">About</a></li>
+				<theme-settings></theme-settings>
 			</ul>
 		</nav>
 
@@ -22,7 +23,7 @@
 			<p>Current position of the ISS updating in real time.</p>
 		</header>
 
-		<main class="tracking">
+		<main>
 			<div class="map" id="map"></div>
 			<h4>Orbital Info</h4>
 

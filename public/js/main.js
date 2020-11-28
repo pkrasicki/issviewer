@@ -4,6 +4,8 @@ import "../../node_modules/leaflet/dist/images/marker-shadow.png";
 import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import "leaflet";
 import "../images/logo.png";
+import { ToggleButtonComponent } from "./components/toggle-button/toggle-button";
+import { ThemeSettingsComponent } from "./components/theme-settings/theme-settings";
 
 const startPos = [51.505, -0.09]; // default map position
 const headingDateFormat = {day: "2-digit", month: "long", year: "numeric"};
@@ -347,20 +349,10 @@ function azimuthToDirectionString(azimuth)
 	return directions[index];
 }
 
-// theme changed by user
-function themeChanged(e)
+function initializeMap()
 {
-	if (e.matches)
-		isDarkTheme = true;
-	else
-		isDarkTheme = false;
-}
-
-window.addEventListener("load", () =>
-{
-	const tracking = document.querySelector("main.tracking");
-
-	map = L.map("map",
+	const mapElementId = "map";
+	map = L.map(mapElementId,
 	{
 		attributionControl: false
 	});
@@ -372,21 +364,43 @@ window.addEventListener("load", () =>
 	}).addTo(map);
 
 	L.control.attribution({prefix: ""}).addTo(map);
+}
 
-	if (!tracking)
+// theme changed in user's OS
+function themeChanged(e)
+{
+	const themeToggle = document.querySelector("nav theme-settings").toggleElement;
+	isDarkTheme = e.matches == true;
+	themeToggle.setPressed(isDarkTheme);
+}
+
+window.addEventListener("load", () =>
+{
+	// define components
+	customElements.define("toggle-button", ToggleButtonComponent);
+	customElements.define("theme-settings", ThemeSettingsComponent);
+
+	// detect system theme changes
+	const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+	isDarkTheme = darkThemeQuery.matches;
+	darkThemeQuery.addEventListener("change", themeChanged);
+
+	if (isDarkTheme)
+		document.querySelector("nav theme-settings").toggleElement.setPressed(true);
+
+	const bodyId = document.body.getAttribute("id");
+	if (bodyId == "home")
 	{
-		// detect system theme changes
-		const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-		isDarkTheme = darkThemeQuery.matches;
-		darkThemeQuery.addEventListener("change", themeChanged);
-
+		initializeMap();
 		const locationInput = document.querySelector("#location");
 		locationInput.value = ""; // clear input on refresh
 		locationInput.addEventListener("change", locationInputChange);
+
 		map.setView(startPos, 4);
 
-	} else if(tracking)
+	} else if (bodyId == "tracking")
 	{
+		initializeMap();
 		const table = document.querySelector(".orbit-table");
 
 		map.setView(startPos, 3);

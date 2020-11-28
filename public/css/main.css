@@ -151,6 +151,12 @@ nav ul li a:hover
 	color: inherit;
 }
 
+nav theme-settings
+{
+	margin-left: auto;
+	margin-right: 10px;
+}
+
 header
 {
 	padding: 20px 0;
@@ -500,8 +506,6 @@ main #location
 {
 	:root
 	{
-		--primary: rgb(136, 195, 255);
-		--primary-dark: rgb(59, 144, 230);
 		--background: rgb(40, 44, 54);
 		--nav-background: rgba(0, 0, 0, 0.7);
 		--text: rgba(255, 255, 255, 0.85);

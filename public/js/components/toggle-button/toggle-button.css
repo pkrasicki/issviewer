@@ -1,0 +1,25 @@
+.toggle-outer
+{
+	width: 40px;
+	height: 17px;
+	background: rgb(97, 97, 97);
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	padding: 0 2px;
+	transition: all 0.1s;
+}
+
+.toggle-outer.pressed
+{
+	background: var(--primary-dark);
+	justify-content: flex-end;
+}
+
+.toggle-inner
+{
+	width: 15px;
+	height: 15px;
+	border-radius: 50px;
+	background: rgb(61, 61, 61);
+}
