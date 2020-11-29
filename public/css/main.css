@@ -1,4 +1,4 @@
-:root
+:root, .light-theme
 {
 	--primary: rgb(136, 195, 255);
 	--primary-dark: rgb(59, 144, 230);
@@ -6,6 +6,18 @@
 	--nav-background: rgba(0, 0, 0, 0.95);
 	--text: rgba(0, 0, 0, 0.85);
 	--text-nav: rgba(255, 255, 255, 0.85);
+	--link: rgb(0, 99, 192);
+	--link-hover: rgb(0, 81, 156);
+	--text-label-color: rgb(255, 42, 42);
+	--location-input-bg: white;
+	--location-input-color: rgba(0, 0, 0, 0.9);
+	--location-input-border: rgba(0, 0, 0, 0.2);
+	--map-background: #d3d3d3;
+	--map-border: #808080;
+	--map-tiles-filter: none;
+	--brightness-bar: rgba(0, 0, 0, 0.15);
+	--brightness-bar-full: var(--primary-dark);
+	--spinner-color: var(--primary-dark);
 }
 
 *
@@ -34,10 +46,10 @@ input
 	font-family: inherit;
 	font-size: inherit;
 	padding: 5px;
-	border: solid 1px rgba(0, 0, 0, 0.2);
+	border: solid 1px var(--location-input-border);
 	border-radius: 5px;
-	color: rgba(0, 0, 0, 0.9);
-	background: white;
+	color: var(--location-input-color);
+	background: var(--location-input-bg);
 }
 
 input:focus
@@ -70,7 +82,7 @@ input:focus
 	top: 5px;
 	border-radius: 50px;
 	border: solid;
-	border-color: var(--primary-dark) transparent var(--primary-dark) transparent;
+	border-color: var(--spinner-color) transparent var(--spinner-color) transparent;
 	animation: spinner-spin 1.2s linear infinite;
 }
 
@@ -82,12 +94,12 @@ ul
 a
 {
 	text-decoration: none;
-	color: rgb(0, 99, 192);
+	color: var(--link);
 }
 
 a:hover
 {
-	color: rgb(0, 81, 156);
+	color: var(--link-hover);
 }
 
 .container
@@ -183,8 +195,30 @@ main #location
 	margin-top: 30px;
 	max-width: 100%;
 	height: 500px;
-	background: #d3d3d3;
-	border: solid 1px #808080;
+	background: var(--map-background) !important; /* when !important is added this will be the color of map tiles while they are loading */
+	border: solid 1px var(--map-border);
+}
+
+.map-tiles
+{
+	filter: var(--map-tiles-filter);
+}
+
+.map-text-label::before
+{
+	display: none !important;
+}
+
+.map-text-label
+{
+	color: var(--text-label-color) !important;
+	background: transparent !important;
+	font-size: 18px !important;
+	border: none !important;
+	box-shadow: none !important;
+	text-shadow: 1px 1px rgba(0, 0, 0, 0.3) !important;
+	top: 15px;
+	left: -15px;
 }
 
 .orbit-table
@@ -272,7 +306,7 @@ main #location
 .brightness-indicator .bar
 {
 	display: inline-block;
-	background: rgba(0, 0, 0, 0.15);
+	background: var(--brightness-bar);
 	margin-right: 2px;
 	width: 5px;
 	position: relative;
@@ -301,7 +335,7 @@ main #location
 
 .brightness-indicator .bar.full
 {
-	background: var(--primary-dark);
+	background: var(--brightness-bar-full);
 }
 
 .sightings-list ul li:hover
@@ -352,23 +386,6 @@ main #location
 .hidden
 {
 	display: none;
-}
-
-.text-label::before
-{
-	display: none !important;
-}
-
-.text-label
-{
-	color: rgb(255, 42, 42) !important;
-	background: transparent !important;
-	font-size: 18px !important;
-	border: none !important;
-	box-shadow: none !important;
-	text-shadow: 1px 1px rgba(0, 0, 0, 0.3) !important;
-	top: 15px;
-	left: -15px;
 }
 
 @keyframes spinner-spin
@@ -499,57 +516,5 @@ main #location
 	html
 	{
 		scroll-behavior: auto;
-	}
-}
-
-@media(prefers-color-scheme: dark)
-{
-	:root
-	{
-		--background: rgb(40, 44, 54);
-		--nav-background: rgba(0, 0, 0, 0.7);
-		--text: rgba(255, 255, 255, 0.85);
-	}
-
-	a
-	{
-		color: rgb(122, 191, 255);
-	}
-
-	a:hover
-	{
-		color: rgb(143, 200, 253);
-	}
-
-	input
-	{
-		color: rgba(255, 255, 255, 0.9);
-		background-color: rgba(0, 0, 0, 0.2);
-		border-color: transparent;
-	}
-
-	.map
-	{
-		background: #1f1f1f !important; /* when !important is added this will be the color of map tiles while they are loading - default is too bright */
-	}
-
-	.map-tiles
-	{
-		filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
-	}
-
-	.text-label
-	{
-		color: rgb(255, 95, 95) !important;
-	}
-
-	.brightness-indicator .bar.full
-	{
-		background: var(--primary);
-	}
-
-	.spinner:after
-	{
-		border-color: var(--primary) transparent var(--primary) transparent;
 	}
 }

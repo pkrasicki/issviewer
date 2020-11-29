@@ -1,0 +1,37 @@
+body.dark-theme
+{
+	--background: rgb(40, 44, 54);
+	--nav-background: rgba(0, 0, 0, 0.7);
+	--text: rgba(255, 255, 255, 0.85);
+	--link: rgb(122, 191, 255);
+	--link-hover: rgb(143, 200, 253);
+	--text-label-color: rgb(255, 95, 95);
+	--location-input-bg: rgba(0, 0, 0, 0.2);
+	--location-input-color: rgba(255, 255, 255, 0.9);
+	--location-input-border: transparent;
+	--map-background: #1f1f1f;
+	--map-tiles-filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
+	--brightness-bar-full: var(--primary);
+	--spinner-color: var(--primary);
+}
+
+@media(prefers-color-scheme: dark)
+{
+	/* same values as above */
+	:root
+	{
+		--background: rgb(40, 44, 54);
+		--nav-background: rgba(0, 0, 0, 0.7);
+		--text: rgba(255, 255, 255, 0.85);
+		--link: rgb(122, 191, 255);
+		--link-hover: rgb(143, 200, 253);
+		--text-label-color: rgb(255, 95, 95);
+		--location-input-bg: rgba(0, 0, 0, 0.2);
+		--location-input-color: rgba(255, 255, 255, 0.9);
+		--location-input-border: transparent;
+		--map-background: #1f1f1f;
+		--map-tiles-filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
+		--brightness-bar-full: var(--primary);
+		--spinner-color: var(--primary);
+	}
+}

@@ -1,4 +1,5 @@
 import "../css/main.css";
+import "../css/dark-theme.css";
 import "../../node_modules/leaflet/dist/leaflet.css";
 import "../../node_modules/leaflet/dist/images/marker-shadow.png";
 import "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
@@ -32,8 +33,8 @@ let passes = {};
 let locationMarker;
 let startMarker; // marks visible pass start
 let endMarker; // marks visible pass end
-let polylineSunlit; // visible path
-let polylineShadowed; // path in Earth's shadow
+let polylineSunlit; // visible part of satellite's path
+let polylineShadowed; // entire path
 let isDarkTheme = false;
 
 // updates current position of ISS on the map on tracking page
@@ -287,6 +288,16 @@ function updateSightingsList()
 	}
 }
 
+function getSunlitColor()
+{
+	return isDarkTheme ? lineColor.darkTheme.sunlit : lineColor.default.sunlit;
+}
+
+function getShadowedColor()
+{
+	return isDarkTheme ? lineColor.darkTheme.shadowed : lineColor.default.shadowed;
+}
+
 function drawPassOnMap(pass)
 {
 	const sunlitPoints = pass.filter(point => point.visible === true);
@@ -301,24 +312,23 @@ function drawPassOnMap(pass)
 	if (polylineShadowed)
 		polylineShadowed.remove();
 
-	// path colors depend on selected theme
-	const sunlitColor = isDarkTheme ? lineColor.darkTheme.sunlit : lineColor.default.sunlit;
-	const shadowedColor = isDarkTheme ? lineColor.darkTheme.shadowed : lineColor.default.shadowed;
-	polylineShadowed = L.polyline(darkCoords, {color: shadowedColor}).addTo(map);
-	polylineSunlit = L.polyline(sunlitCoords, {color: sunlitColor}).addTo(map);
+	polylineShadowed = L.polyline(darkCoords, {color: getShadowedColor()}).addTo(map);
+	polylineSunlit = L.polyline(sunlitCoords, {color: getSunlitColor()}).addTo(map);
+
+	const labelOptions = {permanent: true, className: "map-text-label", offset: [0, 0], direction: "bottom"};
 
 	if (startMarker)
 		startMarker.remove();
 
+	startMarker = new L.marker(sunlitCoords[0], {opacity: 0});
+	startMarker.bindTooltip("start", labelOptions);
+	startMarker.addTo(map);
+
 	if (endMarker)
 		endMarker.remove();
 
-	startMarker = new L.marker(sunlitCoords[0], {opacity: 0});
-	startMarker.bindTooltip("start", {permanent: true, className: "text-label", offset: [0, 0], direction: "bottom"});
-	startMarker.addTo(map);
-
 	endMarker = new L.marker(sunlitCoords[sunlitCoords.length-1], {opacity: 0});
-	endMarker.bindTooltip("end", {permanent: true, className: "text-label", offset: [0, 0], direction: "bottom"});
+	endMarker.bindTooltip("end", labelOptions);
 	endMarker.addTo(map);
 }
 
@@ -366,12 +376,30 @@ function initializeMap()
 	L.control.attribution({prefix: ""}).addTo(map);
 }
 
+function updateMapOverlayColors()
+{
+	if (polylineShadowed)
+		polylineShadowed.setStyle({color: getShadowedColor()});
+
+	if (polylineSunlit)
+		polylineSunlit.setStyle({color: getSunlitColor()});
+}
+
 // theme changed in user's OS
 function themeChanged(e)
 {
-	const themeToggle = document.querySelector("nav theme-settings").toggleElement;
 	isDarkTheme = e.matches == true;
-	themeToggle.setPressed(isDarkTheme);
+	const themeSettings = document.querySelector("nav theme-settings");
+	themeSettings.updateButton(isDarkTheme);
+	updateMapOverlayColors();
+}
+
+// theme changed by user
+function themeOverriden(e)
+{
+	isDarkTheme = e.target.toggleElement.pressed;
+	e.target.changeTheme(isDarkTheme);
+	updateMapOverlayColors();
 }
 
 window.addEventListener("load", () =>
@@ -382,11 +410,29 @@ window.addEventListener("load", () =>
 
 	// detect system theme changes
 	const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-	isDarkTheme = darkThemeQuery.matches;
 	darkThemeQuery.addEventListener("change", themeChanged);
 
+	const themeSettings = document.querySelector("nav theme-settings");
+	themeSettings.addEventListener("change", themeOverriden);
+
+	const themeOverride = localStorage.getItem("theme");
+	if (themeOverride == 0)
+	{
+		isDarkTheme = false;
+		themeSettings.changeTheme(isDarkTheme);
+		themeSettings.updateButton(isDarkTheme);
+	} else if (themeOverride == 1)
+	{
+		isDarkTheme = true;
+		themeSettings.changeTheme(isDarkTheme);
+		themeSettings.updateButton(isDarkTheme);
+	} else
+	{
+		isDarkTheme = darkThemeQuery.matches;
+	}
+
 	if (isDarkTheme)
-		document.querySelector("nav theme-settings").toggleElement.setPressed(true);
+		themeSettings.updateButton(isDarkTheme);
 
 	const bodyId = document.body.getAttribute("id");
 	if (bodyId == "home")
