@@ -477,6 +477,14 @@ main #location
 	}
 }
 
+@media(max-width: 400px)
+{
+	.map
+	{
+		max-height: 300px;
+	}
+}
+
 @media(max-width: 390px)
 {
 	.sightings-list ul li
@@ -495,11 +503,24 @@ main #location
 	}
 }
 
-@media(max-width: 400px)
+@media(max-width: 370px)
 {
-	.map
+	nav .logo
 	{
-		max-height: 300px;
+		margin-right: 0px;
+	}
+}
+
+@media(max-width: 355px)
+{
+	header h2
+	{
+		font-size: 20px;
+	}
+
+	nav .logo
+	{
+		display: none;
 	}
 }
 
