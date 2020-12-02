@@ -364,7 +364,8 @@ function initializeMap()
 	const mapElementId = "map";
 	map = L.map(mapElementId,
 	{
-		attributionControl: false
+		attributionControl: false,
+		zoomControl: false
 	});
 
 	L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -373,7 +374,13 @@ function initializeMap()
 		className: "map-tiles"
 	}).addTo(map);
 
-	L.control.attribution({prefix: ""}).addTo(map);
+	let attrib = L.control.attribution({prefix: ""});
+	attrib.addTo(map);
+	attrib.getContainer().classList.add("map-attribution");
+
+	let zoom = L.control.zoom({});
+	zoom.addTo(map);
+	zoom.getContainer().classList.add("map-zoom");
 }
 
 function updateMapOverlayColors()

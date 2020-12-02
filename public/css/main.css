@@ -15,6 +15,10 @@
 	--map-background: #d3d3d3;
 	--map-border: #808080;
 	--map-tiles-filter: none;
+	--map-attribution-bg: rgba(255, 255, 255, 0.7);
+	--map-attribution-color: rgb(70, 70, 70);
+	--map-zoom-bg: rgb(244, 244, 244);
+	--map-zoom-border-bottom: rgb(204, 204, 204);
 	--brightness-bar: rgba(0, 0, 0, 0.15);
 	--brightness-bar-full: var(--primary-dark);
 	--spinner-color: var(--primary-dark);
@@ -219,6 +223,30 @@ main #location
 	text-shadow: 1px 1px rgba(0, 0, 0, 0.3) !important;
 	top: 15px;
 	left: -15px;
+}
+
+.map-attribution
+{
+	background-color: var(--map-attribution-bg) !important;
+	color: var(--map-attribution-color) !important;
+}
+
+.map-attribution a
+{
+	color: var(--link) !important;
+	text-decoration: inherit !important;
+}
+
+.map-attribution a:hover
+{
+	color: var(--link-hover) !important;
+}
+
+.map-zoom a
+{
+	background-color: var(--map-zoom-bg) !important;
+	color: var(--text) !important;
+	border-bottom-color: var(--map-zoom-border-bottom) !important;
 }
 
 .orbit-table
