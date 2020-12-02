@@ -10,7 +10,7 @@ body.dark-theme
 	--location-input-color: rgba(255, 255, 255, 0.9);
 	--location-input-border: transparent;
 	--map-background: #1f1f1f;
-	--map-border: #353535;
+	--map-border: rgba(255, 255, 255, 0.1);
 	--map-tiles-filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
 	--map-attribution-bg: rgba(0, 0, 0, 0.6);
 	--map-attribution-color: rgb(161, 161, 161);
@@ -35,7 +35,7 @@ body.dark-theme
 		--location-input-color: rgba(255, 255, 255, 0.9);
 		--location-input-border: transparent;
 		--map-background: #1f1f1f;
-		--map-border: #353535;
+		--map-border: rgba(255, 255, 255, 0.1);
 		--map-tiles-filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); /* dark map */
 		--map-attribution-bg: rgba(0, 0, 0, 0.6);
 		--map-attribution-color: rgb(161, 161, 161);
