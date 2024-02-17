@@ -1,7 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
@@ -12,19 +12,15 @@ module.exports =
 	output:
 	{
 		path: path.resolve(__dirname, "dist"),
-		filename: "main.js"
+		filename: "main.js",
 	},
-	devServer:
-	{
-		contentBase: "./dist"
-	},
-	devtool: "inline-source-map",
+	devtool: process.env.NODE_ENV == "production" ? "source-map" : "inline-source-map",
 	optimization:
 	{
 		minimizer:
 		[
-			new TerserPlugin({}),
-			new OptimizeCssAssetsPlugin({})
+			new TerserPlugin(),
+			new CssMinimizerPlugin()
 		]
 	},
 	module:
@@ -42,15 +38,11 @@ module.exports =
 				]
 			},
 			{
-				test: /\.(png)$/,
-				use:
+				test: /\.png$/i,
+				type: "asset/resource",
+				generator:
 				{
-					loader: "file-loader",
-					options:
-					{
-						outputPath: "images",
-						name: "[name].[ext]"
-					}
+					filename: "images/[name][ext]"
 				}
 			},
 			{
@@ -65,10 +57,7 @@ module.exports =
 		({
 			satellite: "satellite.js"
 		}),
-		new MiniCssExtractPlugin(
-		{
-			name: "[name].[ext]"
-		}),
+		new MiniCssExtractPlugin({}),
 		new HtmlWebpackPlugin(
 		{
 			filename: "index.html",
