@@ -15,6 +15,11 @@ The app periodically fetches orbital information about ISS from [celestrak.org](
 - [Python 3](https://www.python.org)
 - [PyEphem](https://github.com/brandon-rhodes/pyephem)
 
+On Debian GNU/Linux they can be quickly installed by running:
+```
+sudo apt install nodejs npm redis python3-ephem
+```
+
 ## Build from source
 ```
 npm install
