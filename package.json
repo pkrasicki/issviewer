@@ -12,7 +12,7 @@
   },
   "keywords": [],
   "author": "pkrasicki",
-  "license": "GPL",
+  "license": "AGPL",
   "private": "true",
   "dependencies": {
     "bottleneck": "^2.19.5",
