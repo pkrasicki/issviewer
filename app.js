@@ -8,6 +8,9 @@ const cache = require("./cache");
 const PORT = process.env.PORT || 3000;
 const MS_PER_HOUR = 3600000;
 const ISS_TRACK_INTERVAL_MS = 100;
+const SATELLITE_DATA_API_URL = "https://celestrak.org";
+const LOCATION_DATA_API_URL = "https://nominatim.openstreetmap.org";
+
 const headers = {headers: {"User-Agent": "issviewer"}};
 const limiter = new Bottleneck({
 	maxConcurrent: 1,
@@ -102,7 +105,8 @@ async function fetchTleData()
 {
 	try
 	{
-		const response = await fetch("https://celestrak.com/NORAD/elements/stations.txt", headers);
+		const requestUrl = `${SATELLITE_DATA_API_URL}/NORAD/elements/gp.php?GROUP=stations&FORMAT=tle`;
+		const response = await fetch(requestUrl, headers);
 		const fullTleFile = await response.text();
 		tleData = tleStringToArray(fullTleFile);
 		// cache TLE string
@@ -134,15 +138,15 @@ async function predictResponse (req, res)
 			return;
 		}
 
-		var location = await cache.getLocation(locationName);
+		let location = await cache.getLocation(locationName);
 
 		// location not in cache, download it
 		if (location == null)
 		{
 			console.log("location is not in cache and will be downloaded");
-			const requestURL = encodeURI(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}`);
+			const requestUrl = encodeURI(`${LOCATION_DATA_API_URL}/search?format=json&q=${locationName}`);
 			const response = await limiter.schedule(() =>
-				fetch(requestURL, headers)
+				fetch(requestUrl, headers)
 			);
 			const places = await response.json();
 
