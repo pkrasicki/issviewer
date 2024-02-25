@@ -72,18 +72,23 @@ async function startLoadTleData()
 
 		if (data != null)
 		{
-			var tleArray = tleStringToArray(data);
-			var tleDay = Number(tleArray[1].substring(20, 32));
-			var utcNowString = new Date().toUTCString();
-			var utcNow = new Date(utcNowString);
-			var diff = utcNow - new Date(utcNow.getFullYear(), 0, 0);
-			var currentDay = diff / (1000*60*60*24);
+			const cachedTleArray = tleStringToArray(data);
+			const cachedTleYear = parseInt(cachedTleArray[1].substring(18, 20));
+			const cachedTleDay = parseFloat(cachedTleArray[1].substring(20, 32));
+
+			const utcNowString = new Date().toUTCString();
+			const utcNow = new Date(utcNowString);
+
+			const currentFullYear = utcNow.getFullYear();
+			const currentTleYear = parseInt(currentFullYear.toString().substring(2, 4)); // current year in TLE format
+			const differenceMs = utcNow - new Date(currentFullYear, 0, 0);
+			const currentTleDay = differenceMs / (1000*60*60*24); // current day in TLE format
 
 			// check if cached TLE is recent enough
-			if (currentDay - tleDay < 1)
+			if (cachedTleYear == currentTleYear && currentTleDay - cachedTleDay < 1)
 			{
 				console.log("cached TLE is recent enough and will be used");
-				tleData = tleArray;
+				tleData = cachedTleArray;
 			} else
 			{
 				console.log("cached TLE is old and will be redownloaded");
